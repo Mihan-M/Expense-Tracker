@@ -4,6 +4,9 @@ import com.slt.expense_tracker.entity.ExpenseCategory;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +34,10 @@ public class ExpenseRequest {
     private BigDecimal amount;
 
     @NotNull(message = "Transaction date is required")
+    @FutureOrPresent(message = "Transaction date cannot be in the past")
     private LocalDate transactionDate;
+
+
 
     @Size(max = 500, message = "Note must not exceed 500 characters")
     private String note;

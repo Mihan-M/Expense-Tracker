@@ -4,6 +4,7 @@ import com.slt.expense_tracker.dto.AuthResponse;
 import com.slt.expense_tracker.dto.LoginRequest;
 import com.slt.expense_tracker.dto.LoginResponse;
 import com.slt.expense_tracker.dto.RegisterRequest;
+import com.slt.expense_tracker.entity.Role;
 import com.slt.expense_tracker.entity.User;
 import com.slt.expense_tracker.exception.BadRequestException;
 import com.slt.expense_tracker.exception.DuplicateEmailException;
@@ -35,6 +36,7 @@ public class AuthService {
                 passwordEncoder.encode(request.getPassword())
         );
         user.setAddress(request.getAddress());
+        user.setRole(Role.USER);
 
         User savedUser = userRepository.save(user);
 
@@ -62,12 +64,16 @@ public class AuthService {
 
         String token = jwtService.generateToken(user.getEmail());
 
+        String roleName = user.getRole() != null ? user.getRole().name() : Role.USER.name();
+
         return new LoginResponse(
                 "Login successful",
                 token,
                 user.getId(),
                 user.getName(),
-                user.getEmail()
+                user.getEmail(),
+                roleName
         );
     }
-}
+}
+

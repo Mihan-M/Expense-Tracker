@@ -48,12 +48,12 @@ class AuthServiceTest {
         registerRequest = new RegisterRequest();
         registerRequest.setName("Test User");
         registerRequest.setEmail("test@example.com");
-        registerRequest.setPassword("password123");
+        registerRequest.setPassword("Password@123");
         registerRequest.setAddress("123 Test St");
 
         loginRequest = new LoginRequest();
         loginRequest.setEmail("test@example.com");
-        loginRequest.setPassword("password123");
+        loginRequest.setPassword("Password@123");
 
         testUser = User.builder()
                 .id(1L)
@@ -102,7 +102,9 @@ class AuthServiceTest {
         assertEquals("mockJwtToken", response.getToken());
         assertEquals("test@example.com", response.getEmail());
         assertEquals(1L, response.getUserId());
+        assertEquals("USER", response.getRole());
     }
+
 
     @Test
     @DisplayName("Should throw BadRequestException when login user email is not found")

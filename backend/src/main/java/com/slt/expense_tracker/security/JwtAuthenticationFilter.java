@@ -1,5 +1,6 @@
 package com.slt.expense_tracker.security;
 
+import com.slt.expense_tracker.entity.Role;
 import com.slt.expense_tracker.entity.User;
 import com.slt.expense_tracker.repository.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -8,12 +9,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -49,11 +52,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (user != null && jwtService.isTokenValid(token, user.getEmail())) {
 
+                    Role userRole = user.getRole() != null ? user.getRole() : Role.USER;
+                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + userRole.name());
+
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     user.getEmail(),
                                     null,
-                                    Collections.emptyList()
+                                    List.of(authority)
                             );
 
                     SecurityContextHolder
@@ -61,6 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             .setAuthentication(authentication);
                 }
             }
+
 
         } catch (Exception exception) {
             // Invalid or expired JWT.
