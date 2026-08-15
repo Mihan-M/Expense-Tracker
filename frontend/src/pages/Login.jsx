@@ -64,7 +64,7 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="relative text-xs text-slate-600">Built for the SLT Software Developer Assessment</p>
+        <p className="relative text-xs text-slate-600"></p>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-12 bg-white">
