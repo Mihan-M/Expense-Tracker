@@ -1,4 +1,4 @@
-# SLT Expense Tracker Application
+# Expense Tracker Application
 
 Expense Tracker is a full-stack personal finance application built with a **Spring Boot** backend (Java 17, Spring Security with JWT authentication, Spring Data JPA, PostgreSQL) and a **React** frontend (Vite, Tailwind CSS, Axios, Recharts). It enables users to securely log and track incomes and expenses, monitor real-time total and monthly balances, view category spending breakdowns, update profiles, and manage role-based dashboard access.
 
