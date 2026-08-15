@@ -1,96 +1,243 @@
-# Expense Tracker Application
+# SLT Expense Tracker Application
 
-Expense Tracker is a full-stack personal finance application built with Spring Boot (Java 17, Maven, Spring Security with JWT authentication) and React (Vite, Tailwind CSS, React Router). It enables users to securely log incomes and expenses, track real-time total and month-scoped balances, view category spending breakdowns, and manage their account profile.
-
----
-
-## 🔑 Admin Login & Dashboard Access
-
-Access to the **Dashboard** (`/dashboard` and `/api/dashboard`) is strictly restricted to users with the **`ADMIN`** role. Standard users (`USER` role) are automatically redirected to the Expenses page.
-
-An administrator account is automatically seeded into the database on application startup via `AdminSeeder`.
-
-### Default Admin Credentials
-
-| Credential | Value |
-| :--- | :--- |
-| **Email** | `admin@example.com` |
-| **Password** | `Admin@12345` |
-| **Role** | `ADMIN` |
-
-> **Note**: These credentials can be configured via environment variables or in `backend/src/main/resources/application.properties` using the `admin.email` and `admin.password` properties.
-
-### How to Log In as Admin to Access the Dashboard
-
-1. **Start the Applications**: Ensure both the backend server (`http://localhost:8080`) and frontend dev server (`http://localhost:5173`) are running.
-2. **Navigate to Login**: Open your browser and go to `http://localhost:5173/login`.
-3. **Enter Credentials**:
-   - **Email**: `admin@example.com`
-   - **Password**: `Admin@12345`
-4. **Submit Login**: Click **Sign In**.
-5. **Dashboard Redirection**: Upon successful authentication, the system recognizes the `ADMIN` role and automatically redirects you to `http://localhost:5173/dashboard`.
-6. **Navigation Bar**: As an Admin, the **Dashboard** link will be visible in the left sidebar navigation.
+Expense Tracker is a full-stack personal finance application built with a **Spring Boot** backend (Java 17, Spring Security with JWT authentication, Spring Data JPA, PostgreSQL) and a **React** frontend (Vite, Tailwind CSS, Axios, Recharts). It enables users to securely log and track incomes and expenses, monitor real-time total and monthly balances, view category spending breakdowns, update profiles, and manage role-based dashboard access.
 
 ---
 
-## Prerequisites
+## 📋 Table of Contents
 
-- **Java Development Kit (JDK)**: Java 17 or higher
-- **Build Tool**: Apache Maven 3.8+ (or use the included `./mvnw` wrapper)
-- **Node.js**: Node v18+ and `npm`
-- **Database**: PostgreSQL database server (running locally or accessible via network)
-
-> **Note**: No Docker or `docker-compose` is used or required for this project.
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Prerequisites & System Requirements](#-prerequisites--system-requirements)
+- [Environment Setup](#-environment-setup)
+- [Installing Dependencies & Running Locally](#-installing-dependencies--running-locally)
+  - [1. Backend Setup (Spring Boot)](#1-backend-setup-spring-boot)
+  - [2. Frontend Setup (React / Vite)](#2-frontend-setup-react--vite)
+- [Admin Credentials & Dashboard Access](#-admin-credentials--dashboard-access)
+- [Running Backend Test Suites](#-running-backend-test-suites)
+- [Project Directory Structure](#-project-directory-structure)
 
 ---
 
-## Backend Setup & Execution
+## ✨ Features
 
-### 1. Database Configuration
-Configure your PostgreSQL connection details in `backend/src/main/resources/application.properties`:
+- 🔒 **Authentication & Authorization**: Secure JWT-based registration and login with BCrypt password hashing.
+- 👤 **Role-Based Access Control (RBAC)**: Dedicated `ADMIN` role with access to system-wide dashboard metrics (`/dashboard`). Standard `USER` accounts access personal expense & income management.
+- 📊 **Interactive Dashboard**: Real-time summary of total income, total expenses, net balance, category spending breakdown (donut chart), and recent transactions.
+- 💸 **Expense & Income Tracking**: Full CRUD operations for managing income sources and categorised expense logs with filtering and debounced search.
+- ⚙️ **User Profile Management**: View and update account profile information.
 
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/slt_expense_tracker
-spring.datasource.username=postgres
-spring.datasource.password=YOUR_POSTGRES_PASSWORD
-```
+---
 
-Create the PostgreSQL database prior to launching:
+## 🛠️ Tech Stack
+
+### Backend
+- **Framework**: Spring Boot 3.4 / 4.x (Java 17)
+- **Security**: Spring Security with JWT (JSON Web Tokens)
+- **Persistence**: Spring Data JPA / Hibernate
+- **Database**: PostgreSQL (Production/Dev), H2 (In-memory for testing)
+- **Build Tool**: Apache Maven (`mvnw` wrapper included)
+
+### Frontend
+- **Framework**: React 18 (Vite)
+- **Styling**: Tailwind CSS
+- **HTTP Client**: Axios (with JWT request interceptor)
+- **Data Visualization**: Recharts
+- **Icons**: Lucide React
+- **Routing**: React Router DOM v6
+
+---
+
+## ⚙️ Prerequisites & System Requirements
+
+Ensure the following tools are installed on your machine before running the application:
+
+1. **Java Development Kit (JDK)**: Java 17 or higher
+   ```bash
+   java -version
+   ```
+2. **Apache Maven**: Version 3.8+ (or use the included Maven Wrapper `./mvnw` / `mvnw.cmd`)
+   ```bash
+   mvn -version
+   ```
+3. **Node.js & npm**: Node.js v18+ and `npm` v9+
+   ```bash
+   node -v
+   npm -v
+   ```
+4. **PostgreSQL Database Server**: v13 or higher (running locally or accessible via network)
+   ```bash
+   psql --version
+   ```
+
+---
+
+## 🔧 Environment Setup
+
+### 1. Database Creation
+Create a PostgreSQL database named `slt_expense_tracker` prior to launching the backend:
+
 ```sql
 CREATE DATABASE slt_expense_tracker;
 ```
 
-### 2. Running the Backend Server
-From the root directory or `backend/` directory:
+### 2. Backend Configuration
+The database connection details and application configurations are defined in [`backend/src/main/resources/application.properties`](backend/src/main/resources/application.properties). Update the connection details if your local PostgreSQL username or password differs:
 
-```bash
-# Using Maven wrapper (Windows PowerShell)
-.\mvnw.cmd spring-boot:run
+```properties
+# PostgreSQL Database Connection
+spring.datasource.url=jdbc:postgresql://localhost:5432/slt_expense_tracker
+spring.datasource.username=postgres
+spring.datasource.password=123
 
-# Using Maven wrapper (Linux/macOS)
-./mvnw spring-boot:run
+# JWT Configuration
+jwt.secret=ThisIsASecureJwtSecretKeyForSLTExpenseTrackerAssessment2026
+jwt.expiration=86400000
+
+# Default Admin Credentials (Seeded on startup)
+admin.email=${ADMIN_EMAIL:admin@example.com}
+admin.password=${ADMIN_PASSWORD:Admin@12345}
 ```
 
-The Spring Boot backend server starts on port **`8080`** (`http://localhost:8080`).
+> **Note**: You can also override configuration settings using environment variables (e.g., `ADMIN_EMAIL`, `ADMIN_PASSWORD`).
 
-### 3. Running Backend Tests
-To execute the complete unit and integration test suite (39 tests):
+### 3. Frontend Configuration (Optional)
+The React frontend is configured to call `http://localhost:8080/api` by default. If your backend server runs on a different port or host, create/update `.env` in the `frontend` folder based on `.env.example`:
 
 ```bash
-# Run unit & integration tests
-.\mvnw.cmd test
+cd frontend
+cp .env.example .env
 ```
 
 ---
 
-## Frontend Setup & Execution
+## 🚀 Installing Dependencies & Running Locally
 
-For detailed instructions on running, testing, and building the React frontend application, please refer to [`frontend/README.md`](frontend/README.md).
+### 1. Backend Setup (Spring Boot)
 
-Quick start:
+Navigate to the `backend` directory and compile/run the backend server:
+
+#### **Windows (PowerShell / Command Prompt)**:
+```powershell
+cd backend
+.\mvnw.cmd clean compile
+.\mvnw.cmd spring-boot:run
+```
+
+#### **Linux / macOS**:
+```bash
+cd backend
+./mvnw clean compile
+./mvnw spring-boot:run
+```
+
+> The Spring Boot backend server will start on port **`8080`** (`http://localhost:8080`).
+
+---
+
+### 2. Frontend Setup (React / Vite)
+
+In a separate terminal window, navigate to the `frontend` directory, install node modules, and start the development server:
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-The Vite dev server runs at `http://localhost:5173`.
+
+> The Vite frontend dev server will start on **`http://localhost:5173`**.
+
+---
+
+## 🔑 Admin Credentials & Dashboard Access
+
+The backend automatically seeds an Administrator account into the database upon application startup via `AdminSeeder`.
+
+### Default Admin Credentials
+
+| Parameter | Default Value |
+| :--- | :--- |
+| **Email** | `admin@example.com` |
+| **Password** | `Admin@12345` |
+| **Role** | `ADMIN` |
+
+### How to Access the Dashboard as Admin
+1. Ensure both **Backend** (`http://localhost:8080`) and **Frontend** (`http://localhost:5173`) are running.
+2. Open your browser and navigate to `http://localhost:5173/login`.
+3. Enter `admin@example.com` and `Admin@12345`, then click **Sign In**.
+4. Upon successful login, you will be redirected to the Admin **Dashboard** (`http://localhost:5173/dashboard`).
+5. Standard users (`USER` role) registering through the application will be redirected to `/expenses`.
+
+---
+
+## 🧪 Running Backend Test Suites
+
+The backend includes a comprehensive unit and integration test suite (39 tests) covering controllers, services, repositories, and security authentication.
+
+> 💡 **Note**: Backend tests run against an **isolated H2 in-memory database** (configured in `backend/src/test/resources/application.properties` with PostgreSQL mode enabled). **You do NOT need PostgreSQL running to run the test suite.**
+
+### Running All Backend Tests (39 Tests)
+
+From the `backend/` directory:
+
+#### **Windows (PowerShell / Command Prompt)**:
+```powershell
+cd backend
+.\mvnw.cmd test
+```
+
+#### **Linux / macOS**:
+```bash
+cd backend
+./mvnw test
+```
+
+### Running Specific Test Classes
+To run individual test classes (e.g., `ExpenseServiceTest` or `AuthIntegrationTest`):
+
+```powershell
+# Windows
+.\mvnw.cmd test -Dtest=ExpenseServiceTest
+.\mvnw.cmd test -Dtest=AuthIntegrationTest
+
+# Linux / macOS
+./mvnw test -Dtest=ExpenseServiceTest
+./mvnw test -Dtest=AuthIntegrationTest
+```
+
+### Clean & Re-run Test Suite
+```powershell
+.\mvnw.cmd clean test
+```
+
+---
+
+## 📁 Project Directory Structure
+
+```
+SLT-Assessment/
+├── backend/                        # Spring Boot Backend Project
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/slt/expense_tracker/
+│   │   │   │   ├── config/          # Security & CORS configuration
+│   │   │   │   ├── controller/      # REST API endpoints
+│   │   │   │   ├── model/           # JPA Entities & Enums
+│   │   │   │   ├── repository/      # Spring Data JPA repositories
+│   │   │   │   ├── security/        # JWT utilities & filters
+│   │   │   │   └── service/         # Business logic services
+│   │   │   └── resources/           # Application configuration & seed settings
+│   │   └── test/                    # Unit & Integration test suites (H2 in-memory)
+│   ├── mvnw & mvnw.cmd              # Maven Wrapper scripts
+│   └── pom.xml                      # Maven project configuration & dependencies
+│
+└── frontend/                       # React / Vite Frontend Project
+    ├── src/
+    │   ├── api/                     # Axios client & service calls
+    │   ├── components/              # Reusable UI components & layouts
+    │   ├── context/                 # Auth Context state provider
+    │   ├── pages/                   # Application view pages (Dashboard, Expenses, etc.)
+    │   └── utils/                   # Formatting utilities & constants
+    ├── package.json                 # Frontend dependencies & scripts
+    └── vite.config.js               # Vite build configuration
+```
