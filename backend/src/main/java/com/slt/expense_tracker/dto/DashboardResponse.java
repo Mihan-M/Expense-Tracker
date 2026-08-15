@@ -17,6 +17,11 @@ public class DashboardResponse {
     private BigDecimal totalIncome;
     private BigDecimal totalExpenses;
     private BigDecimal balance;
+    private BigDecimal monthlyExpenseTotal;
+    private BigDecimal monthlyIncomeTotal;
+    private String highestExpenseCategory;
+    private Integer selectedYear;
+    private Integer selectedMonth;
     private List<TransactionResponse> recentTransactions;
     private List<CategorySummaryResponse> categoryBreakdown;
 }

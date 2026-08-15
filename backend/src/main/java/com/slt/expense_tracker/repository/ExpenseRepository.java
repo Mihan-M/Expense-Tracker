@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpecificationExecutor<Expense> {
@@ -20,6 +21,12 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.user = :user")
     BigDecimal sumAmountByUser(@Param("user") User user);
 
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.user = :user AND e.transactionDate >= :startDate AND e.transactionDate <= :endDate")
+    BigDecimal sumAmountByUserAndTransactionDateBetween(@Param("user") User user, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
     @Query("SELECT e.category, SUM(e.amount) FROM Expense e WHERE e.user = :user GROUP BY e.category")
     List<Object[]> findCategoryBreakdownByUser(@Param("user") User user);
+
+    @Query("SELECT e.category, SUM(e.amount) FROM Expense e WHERE e.user = :user AND e.transactionDate >= :startDate AND e.transactionDate <= :endDate GROUP BY e.category ORDER BY SUM(e.amount) DESC")
+    List<Object[]> findCategoryBreakdownByUserAndTransactionDateBetween(@Param("user") User user, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

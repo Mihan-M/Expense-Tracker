@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -32,8 +33,19 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public DashboardResponse getDashboardData(String userEmail) {
+        return getDashboardData(userEmail, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public DashboardResponse getDashboardData(String userEmail, Integer year, Integer month) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
+
+        int selectedYear = (year != null) ? year : LocalDate.now().getYear();
+        int selectedMonth = (month != null) ? month : LocalDate.now().getMonthValue();
+
+        LocalDate startDate = LocalDate.of(selectedYear, selectedMonth, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 
         BigDecimal totalIncome = incomeRepository.sumAmountByUser(user);
         if (totalIncome == null) {
@@ -47,6 +59,18 @@ public class DashboardService {
 
         BigDecimal balance = totalIncome.subtract(totalExpenses);
 
+        BigDecimal monthlyIncomeTotal = incomeRepository.sumAmountByUserAndIncomeDateBetween(user, startDate, endDate);
+        if (monthlyIncomeTotal == null) {
+            monthlyIncomeTotal = BigDecimal.ZERO;
+        }
+
+        BigDecimal monthlyExpenseTotal = expenseRepository.sumAmountByUserAndTransactionDateBetween(user, startDate, endDate);
+        if (monthlyExpenseTotal == null) {
+            monthlyExpenseTotal = BigDecimal.ZERO;
+        }
+
+        String highestExpenseCategory = getHighestExpenseCategory(user, startDate, endDate);
+
         List<TransactionResponse> recentTransactions = getRecentTransactions(user);
         List<CategorySummaryResponse> categoryBreakdown = getCategoryBreakdown(user, totalExpenses);
 
@@ -54,9 +78,28 @@ public class DashboardService {
                 .totalIncome(totalIncome.setScale(2, RoundingMode.HALF_UP))
                 .totalExpenses(totalExpenses.setScale(2, RoundingMode.HALF_UP))
                 .balance(balance.setScale(2, RoundingMode.HALF_UP))
+                .monthlyIncomeTotal(monthlyIncomeTotal.setScale(2, RoundingMode.HALF_UP))
+                .monthlyExpenseTotal(monthlyExpenseTotal.setScale(2, RoundingMode.HALF_UP))
+                .highestExpenseCategory(highestExpenseCategory)
+                .selectedYear(selectedYear)
+                .selectedMonth(selectedMonth)
                 .recentTransactions(recentTransactions)
                 .categoryBreakdown(categoryBreakdown)
                 .build();
+    }
+
+    private String getHighestExpenseCategory(User user, LocalDate startDate, LocalDate endDate) {
+        List<Object[]> monthlyBreakdown = expenseRepository.findCategoryBreakdownByUserAndTransactionDateBetween(user, startDate, endDate);
+        if (monthlyBreakdown == null || monthlyBreakdown.isEmpty()) {
+            return "N/A";
+        }
+        Object[] topRow = monthlyBreakdown.get(0);
+        ExpenseCategory category = (ExpenseCategory) topRow[0];
+        BigDecimal sum = (BigDecimal) topRow[1];
+        if (category == null || sum == null || sum.compareTo(BigDecimal.ZERO) <= 0) {
+            return "N/A";
+        }
+        return category.getValue();
     }
 
     private List<TransactionResponse> getRecentTransactions(User user) {
