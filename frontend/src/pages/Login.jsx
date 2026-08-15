@@ -23,6 +23,7 @@ export default function Login() {
       await login(form)
       navigate('/dashboard')
     } catch (err) {
+
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.')
     } finally {
       setLoading(false)

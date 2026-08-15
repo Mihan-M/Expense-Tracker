@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import Modal from './Modal'
 
+const today = new Date().toISOString().slice(0, 10)
+
 const emptyForm = {
   title: '',
   amount: '',
-  incomeDate: new Date().toISOString().slice(0, 10),
+  incomeDate: today,
   note: ''
 }
 
@@ -25,7 +27,12 @@ export default function IncomeForm({ initialData, onSubmit, onClose }) {
     try {
       await onSubmit({ ...form, amount: parseFloat(form.amount) })
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save income')
+      if (err.response?.data?.errors) {
+        const firstErr = Object.values(err.response.data.errors)[0]
+        setError(firstErr || 'Failed to save income')
+      } else {
+        setError(err.response?.data?.message || 'Failed to save income')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -71,10 +78,13 @@ export default function IncomeForm({ initialData, onSubmit, onClose }) {
               value={form.incomeDate}
               onChange={handleChange}
               required
+              min={today}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
             />
+
           </div>
         </div>
+
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Note (optional)</label>

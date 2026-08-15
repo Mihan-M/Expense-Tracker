@@ -2,11 +2,13 @@ import React, { useState } from 'react'
 import Modal from './Modal'
 import { EXPENSE_CATEGORIES, categoryLabel } from '../utils/format'
 
+const today = new Date().toISOString().slice(0, 10)
+
 const emptyForm = {
   title: '',
   category: 'food',
   amount: '',
-  transactionDate: new Date().toISOString().slice(0, 10),
+  transactionDate: today,
   note: ''
 }
 
@@ -27,7 +29,12 @@ export default function ExpenseForm({ initialData, onSubmit, onClose }) {
     try {
       await onSubmit({ ...form, amount: parseFloat(form.amount) })
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save expense')
+      if (err.response?.data?.errors) {
+        const firstErr = Object.values(err.response.data.errors)[0]
+        setError(firstErr || 'Failed to save expense')
+      } else {
+        setError(err.response?.data?.message || 'Failed to save expense')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -90,9 +97,12 @@ export default function ExpenseForm({ initialData, onSubmit, onClose }) {
             value={form.transactionDate}
             onChange={handleChange}
             required
+            min={today}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
           />
+
         </div>
+
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Note (optional)</label>

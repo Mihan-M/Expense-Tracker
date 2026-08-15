@@ -7,6 +7,7 @@ import Expenses from './pages/Expenses'
 import Income from './pages/Income'
 import Profile from './pages/Profile'
 import PrivateRoute from './components/PrivateRoute'
+import { useAuth } from './context/AuthContext'
 
 export default function App() {
   return (
@@ -50,3 +51,5 @@ export default function App() {
     </Routes>
   )
 }
+
+

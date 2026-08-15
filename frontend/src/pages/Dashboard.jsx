@@ -44,9 +44,16 @@ export default function Dashboard() {
           setError('')
         }
       })
-      .catch(() => {
-        if (active) setError('Could not load dashboard data.')
+      .catch((err) => {
+        if (active) {
+          if (err.response?.status === 403) {
+            setError("You don't have access to this page")
+          } else {
+            setError('Could not load dashboard data.')
+          }
+        }
       })
+
       .finally(() => {
         if (active) setLoading(false)
       })

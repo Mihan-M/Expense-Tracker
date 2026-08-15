@@ -53,6 +53,7 @@ export default function Sidebar({ open, onClose }) {
           ))}
         </nav>
 
+
         <div className="px-4 py-4 border-t border-white/5">
           <div className="flex items-center gap-3 px-2 py-2">
             <div className="w-9 h-9 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-semibold text-sm shrink-0">

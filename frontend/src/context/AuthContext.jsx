@@ -12,7 +12,8 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (credentials) => {
     const { data } = await authApi.login(credentials)
     localStorage.setItem('token', data.token)
-    const sessionUser = { id: data.userId, name: data.name, email: data.email }
+    const sessionUser = { id: data.userId, name: data.name, email: data.email, role: data.role }
+
     localStorage.setItem('user', JSON.stringify(sessionUser))
     setUser(sessionUser)
     return data

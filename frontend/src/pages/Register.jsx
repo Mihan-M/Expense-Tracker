@@ -33,6 +33,14 @@ export default function Register() {
     }
   }
 
+  const passwordChecks = [
+    { label: '8+ characters', met: form.password.length >= 8 },
+    { label: 'Uppercase letter', met: /[A-Z]/.test(form.password) },
+    { label: 'Lowercase letter', met: /[a-z]/.test(form.password) },
+    { label: 'Number', met: /[0-9]/.test(form.password) },
+    { label: 'Special character', met: /[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]/.test(form.password) }
+  ]
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-10">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-card border border-slate-200 p-8">
@@ -91,12 +99,22 @@ export default function Register() {
               value={form.password}
               onChange={handleChange}
               required
-              minLength={6}
               className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
             />
             {fieldErrors.password && <p className="text-xs text-red-600 mt-1">{fieldErrors.password}</p>}
-            <p className="text-xs text-slate-400 mt-1">At least 6 characters</p>
+            <div className="mt-2 space-y-1">
+              <p className="text-xs font-medium text-slate-500 mb-1">Password requirements:</p>
+              <div className="grid grid-cols-2 gap-1 text-xs">
+                {passwordChecks.map(({ label, met }) => (
+                  <div key={label} className={`flex items-center gap-1.5 ${met ? 'text-emerald-600 font-medium' : 'text-slate-400'}`}>
+                    <span>{met ? '✓' : '•'}</span>
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+
           <button
             type="submit"
             disabled={loading}
