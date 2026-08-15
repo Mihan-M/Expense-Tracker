@@ -7,9 +7,13 @@ import Expenses from './pages/Expenses'
 import Income from './pages/Income'
 import Profile from './pages/Profile'
 import PrivateRoute from './components/PrivateRoute'
+import AdminRoute from './components/AdminRoute'
 import { useAuth } from './context/AuthContext'
 
 export default function App() {
+  const { user } = useAuth()
+  const defaultRedirect = user?.role === 'ADMIN' ? '/dashboard' : '/expenses'
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -17,9 +21,9 @@ export default function App() {
       <Route
         path="/dashboard"
         element={
-          <PrivateRoute>
+          <AdminRoute>
             <Dashboard />
-          </PrivateRoute>
+          </AdminRoute>
         }
       />
       <Route
@@ -46,10 +50,11 @@ export default function App() {
           </PrivateRoute>
         }
       />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Navigate to={defaultRedirect} replace />} />
+      <Route path="*" element={<Navigate to={defaultRedirect} replace />} />
     </Routes>
   )
 }
+
 
 

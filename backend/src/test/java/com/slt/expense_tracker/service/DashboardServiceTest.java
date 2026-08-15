@@ -142,4 +142,30 @@ class DashboardServiceTest {
         assertEquals(2026, dashboard.getSelectedYear());
         assertEquals(8, dashboard.getSelectedMonth());
     }
+
+    @Test
+    @DisplayName("Should limit combined recent transactions to top 5 items")
+    void testGetRecentTransactions_LimitedTo5() {
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(incomeRepository.sumAmountByUser(user)).thenReturn(BigDecimal.ZERO);
+        when(expenseRepository.sumAmountByUser(user)).thenReturn(BigDecimal.ZERO);
+
+        List<Expense> expenses = new ArrayList<>();
+        List<Income> incomes = new ArrayList<>();
+
+        for (long i = 1; i <= 5; i++) {
+            expenses.add(Expense.builder().id(i).title("Expense " + i).amount(BigDecimal.TEN).transactionDate(LocalDate.now()).user(user).build());
+            incomes.add(Income.builder().id(i).title("Income " + i).amount(BigDecimal.TEN).incomeDate(LocalDate.now()).user(user).build());
+        }
+
+        when(expenseRepository.findTop5ByUserOrderByTransactionDateDescIdDesc(user)).thenReturn(expenses);
+        when(incomeRepository.findTop5ByUserOrderByIncomeDateDescIdDesc(user)).thenReturn(incomes);
+        when(expenseRepository.findCategoryBreakdownByUser(user)).thenReturn(List.of());
+
+        DashboardResponse dashboard = dashboardService.getDashboardData(user.getEmail());
+
+        assertNotNull(dashboard);
+        assertEquals(5, dashboard.getRecentTransactions().size());
+    }
 }
+

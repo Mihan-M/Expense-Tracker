@@ -67,8 +67,8 @@ class ValidationTest {
     }
 
     @Test
-    @DisplayName("Should reject past transaction date in ExpenseRequest")
-    void testExpenseRequest_PastDate() {
+    @DisplayName("Should accept past transaction date in ExpenseRequest")
+    void testExpenseRequest_PastDate_Valid() {
         ExpenseRequest request = ExpenseRequest.builder()
                 .title("Dinner")
                 .category(ExpenseCategory.FOOD)
@@ -77,18 +77,32 @@ class ValidationTest {
                 .build();
 
         Set<ConstraintViolation<ExpenseRequest>> violations = validator.validate(request);
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should reject future transaction date in ExpenseRequest")
+    void testExpenseRequest_FutureDate_Invalid() {
+        ExpenseRequest request = ExpenseRequest.builder()
+                .title("Dinner")
+                .category(ExpenseCategory.FOOD)
+                .amount(new BigDecimal("50.00"))
+                .transactionDate(LocalDate.now().plusDays(1))
+                .build();
+
+        Set<ConstraintViolation<ExpenseRequest>> violations = validator.validate(request);
         assertFalse(violations.isEmpty());
         assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("transactionDate")));
     }
 
     @Test
-    @DisplayName("Should accept present and future transaction dates in ExpenseRequest")
-    void testExpenseRequest_ValidDate() {
+    @DisplayName("Should accept present transaction date in ExpenseRequest")
+    void testExpenseRequest_PresentDate_Valid() {
         ExpenseRequest request = ExpenseRequest.builder()
                 .title("Dinner")
                 .category(ExpenseCategory.FOOD)
                 .amount(new BigDecimal("50.00"))
-                .transactionDate(LocalDate.now().plusDays(5))
+                .transactionDate(LocalDate.now())
                 .build();
 
         Set<ConstraintViolation<ExpenseRequest>> violations = validator.validate(request);
@@ -96,8 +110,22 @@ class ValidationTest {
     }
 
     @Test
-    @DisplayName("Should reject past income date in IncomeRequest")
-    void testIncomeRequest_PastDate() {
+    @DisplayName("Should reject future income date in IncomeRequest")
+    void testIncomeRequest_FutureDate_Invalid() {
+        IncomeRequest request = IncomeRequest.builder()
+                .title("Salary")
+                .amount(new BigDecimal("5000.00"))
+                .incomeDate(LocalDate.now().plusDays(5))
+                .build();
+
+        Set<ConstraintViolation<IncomeRequest>> violations = validator.validate(request);
+        assertFalse(violations.isEmpty());
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("incomeDate")));
+    }
+
+    @Test
+    @DisplayName("Should accept past income date in IncomeRequest")
+    void testIncomeRequest_PastDate_Valid() {
         IncomeRequest request = IncomeRequest.builder()
                 .title("Salary")
                 .amount(new BigDecimal("5000.00"))
@@ -105,8 +133,8 @@ class ValidationTest {
                 .build();
 
         Set<ConstraintViolation<IncomeRequest>> violations = validator.validate(request);
-        assertFalse(violations.isEmpty());
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("incomeDate")));
+        assertTrue(violations.isEmpty());
     }
+
 
 }

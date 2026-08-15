@@ -135,9 +135,10 @@ public class DashboardService {
         return transactions.stream()
                 .sorted(Comparator.comparing(TransactionResponse::getDate).reversed()
                         .thenComparing(TransactionResponse::getId, Comparator.nullsLast(Comparator.reverseOrder())))
-                .limit(10)
+                .limit(5)
                 .collect(Collectors.toList());
     }
+
 
     private List<CategorySummaryResponse> getCategoryBreakdown(User user, BigDecimal totalExpenses) {
         List<Object[]> rawBreakdown = expenseRepository.findCategoryBreakdownByUser(user);

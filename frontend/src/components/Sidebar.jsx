@@ -13,6 +13,13 @@ const navItems = [
 export default function Sidebar({ open, onClose }) {
   const { user } = useAuth()
 
+  const filteredNavItems = navItems.filter((item) => {
+    if (item.to === '/dashboard') {
+      return user?.role === 'ADMIN'
+    }
+    return true
+  })
+
   return (
     <>
       {open && (
@@ -34,7 +41,8 @@ export default function Sidebar({ open, onClose }) {
         </div>
 
         <nav className="flex-1 px-3 py-6 space-y-1">
-          {navItems.map(({ to, label, icon: Icon }) => (
+          {filteredNavItems.map(({ to, label, icon: Icon }) => (
+
             <NavLink
               key={to}
               to={to}

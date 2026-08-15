@@ -78,9 +78,10 @@ export default function IncomeForm({ initialData, onSubmit, onClose }) {
               value={form.incomeDate}
               onChange={handleChange}
               required
-              min={today}
+              max={today}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
             />
+
 
           </div>
         </div>

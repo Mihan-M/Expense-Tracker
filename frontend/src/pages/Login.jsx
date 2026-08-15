@@ -20,9 +20,14 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      await login(form)
-      navigate('/dashboard')
+      const data = await login(form)
+      if (data?.role === 'ADMIN') {
+        navigate('/dashboard')
+      } else {
+        navigate('/expenses')
+      }
     } catch (err) {
+
 
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.')
     } finally {
