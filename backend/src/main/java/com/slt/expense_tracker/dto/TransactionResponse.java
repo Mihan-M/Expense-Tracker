@@ -1,6 +1,5 @@
 package com.slt.expense_tracker.dto;
 
-import com.slt.expense_tracker.entity.ExpenseCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,21 +7,18 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ExpenseResponse {
+public class TransactionResponse {
 
     private Long id;
+    private String type; // "EXPENSE" or "INCOME"
     private String title;
-    private ExpenseCategory category;
     private BigDecimal amount;
-    private LocalDate transactionDate;
+    private LocalDate date;
+    private String category; // Expense category name or null for income
     private String note;
-    private Long userId;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

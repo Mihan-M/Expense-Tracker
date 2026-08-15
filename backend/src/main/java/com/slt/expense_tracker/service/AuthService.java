@@ -5,6 +5,8 @@ import com.slt.expense_tracker.dto.LoginRequest;
 import com.slt.expense_tracker.dto.LoginResponse;
 import com.slt.expense_tracker.dto.RegisterRequest;
 import com.slt.expense_tracker.entity.User;
+import com.slt.expense_tracker.exception.BadRequestException;
+import com.slt.expense_tracker.exception.DuplicateEmailException;
 import com.slt.expense_tracker.repository.UserRepository;
 import com.slt.expense_tracker.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new DuplicateEmailException("Email already registered");
         }
 
         User user = new User();
@@ -48,14 +50,14 @@ public class AuthService {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
-                        new RuntimeException("Invalid email or password")
+                        new BadRequestException("Invalid email or password")
                 );
 
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 user.getPassword()
         )) {
-            throw new RuntimeException("Invalid email or password");
+            throw new BadRequestException("Invalid email or password");
         }
 
         String token = jwtService.generateToken(user.getEmail());
@@ -68,4 +70,4 @@ public class AuthService {
                 user.getEmail()
         );
     }
-}
+}

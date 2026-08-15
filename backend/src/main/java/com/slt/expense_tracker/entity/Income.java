@@ -9,11 +9,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "expenses",
+        name = "incomes",
         indexes = {
-                @Index(name = "idx_expense_user_id", columnList = "user_id"),
-                @Index(name = "idx_expense_transaction_date", columnList = "transaction_date"),
-                @Index(name = "idx_expense_category", columnList = "category")
+                @Index(name = "idx_income_user_id", columnList = "user_id"),
+                @Index(name = "idx_income_date", columnList = "income_date")
         }
 )
 @Getter
@@ -21,7 +20,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Expense {
+public class Income {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,21 +29,17 @@ public class Expense {
     @Column(nullable = false, length = 150)
     private String title;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
-    private ExpenseCategory category;
-
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
-    @Column(name = "transaction_date", nullable = false)
-    private LocalDate transactionDate;
+    @Column(name = "income_date", nullable = false)
+    private LocalDate incomeDate;
 
     @Column(length = 500)
     private String note;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_expense_user"))
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_income_user"))
     private User user;
 
     @Column(name = "created_at", updatable = false)
